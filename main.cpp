@@ -2,17 +2,25 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
 #include <curl/curl.h>
+#include "picojson/picojson.h"
 #include "apikey.h"
 
 CURL *curl;
 
+typedef struct {
+    std::string code;
+    std::string name;
+} language_code;
+
 bool check_lang_code(std::string lang_code) {
-    if (lang_code == "")
+    //if (lang_code == "")
+    return true;
 }
 
 int dialogue_mode(int argc, char *argv[]) {
-
+    return 0;
 }
 
 int normal_mode(int argc, char *argv[]) {
@@ -54,6 +62,8 @@ int normal_mode(int argc, char *argv[]) {
             }
         }
     }
+
+    return 0;
 }
 
 // curlの初期設定
@@ -65,8 +75,62 @@ bool setup_curl() {
         return false;
     }
 
+    return true;
+}
+
+// curlで受信したときの動作
+size_t curl_on_receive(char *ptr, size_t size, size_t nmemb, void *stream) {
+    std::vector<char> *recv_buffer = (std::vector<char>*)stream;
+    const size_t sizes = size * nmemb;
+    recv_buffer->insert(recv_buffer->end(), (char*)ptr, (char*)ptr + sizes);
+    return sizes;
+}
+
+// curlの接続設定
+bool connect_curl(std::string url, std::string post_data, std::string &res_string) {
     std::vector<char> res_data;
-    curl_easy_setopt(curl, CURLOPT_URL, "")
+    const char *post_data_c = post_data.c_str();
+    const char *url_c = url.c_str();
+
+    curl_easy_setopt(curl, CURLOPT_URL, url_c);
+    curl_easy_setopt(curl, CURLOPT_POST, 1);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data_c);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, strlen(post_data_c));
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_on_receive);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &res_data);
+
+    // 通信開始
+    CURLcode res = curl_easy_perform(curl);
+    if (res != CURLE_OK) {
+        std::cerr << "Error: curl_easy_perform failed: " << curl_easy_strerror(res) << std::endl;
+        curl_easy_cleanup(curl);
+        return false;
+    }
+
+    curl_easy_cleanup(curl);
+
+    res_string = std::string(res_data.data());
+    return true;
+}
+
+// 言語コードを取得
+bool get_lang_codes(std::map<std::string, std::string> &langs) {
+    std::string get_data;
+    std::string post_data = "auth_key=" + API_KEY + "&type=target";
+    if (!connect_curl("https://api-free.deepl.com/v2/languages", post_data, get_data)) {
+        std::cerr << "Error: 言語コードの取得に失敗しました" << std::endl;
+        return false;
+    }
+
+    picojson::value v;
+    const std::string err = picojson::parse(v, get_data);
+    if (!err.empty()) {
+        std::cerr << "Error: picojson error - " << err << std::endl;
+        return false;
+    }
+
+    std::cout << v << std::endl;
 
     return true;
 }
@@ -74,6 +138,12 @@ bool setup_curl() {
 int main(int argc, char *argv[]) {
     // curlの初期設定
     if (!setup_curl()) {
+        return 1;
+    }
+
+    // 言語コードを取得
+    std::map<std::string, std::string> langs;
+    if (!get_lang_codes(langs)) {
         return 1;
     }
 
