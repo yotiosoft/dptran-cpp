@@ -2,6 +2,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <iterator>
 #include <map>
 #include <curl/curl.h>
 #include "picojson/picojson.h"
@@ -10,9 +12,16 @@
 std::map<std::string, std::string> source_langs;
 std::map<std::string, std::string> target_langs;
 
-bool check_lang_code(std::string lang_code) {
-    //if (lang_code == "")
-    return true;
+bool check_lang_code(std::map<std::string, std::string> langs, std::string lang_code, std::string& correct_code) {
+    std::transform(lang_code.begin(), lang_code.end(), lang_code.begin(), ::toupper);
+    std::cout << "check: " << lang_code << std::endl;
+    auto itr = langs.begin();
+    if ((itr = langs.find(lang_code)) != langs.end()) {
+        correct_code = lang_code;
+        return true;
+    }
+
+    return false;
 }
 
 int dialogue_mode(int argc, char *argv[]) {
@@ -64,8 +73,6 @@ int normal_mode(int argc, char *argv[]) {
 
 // curlの初期設定
 bool setup_curl(CURL **curl) {
-    std::cout << "setup for " << curl << std::endl;
-
     *curl = curl_easy_init();
 
     if (curl == nullptr) {
@@ -92,8 +99,6 @@ size_t curl_on_receive(char *ptr, size_t size, size_t nmemb, void *stream) {
 
 // curlの接続設定
 bool connect_curl(CURL **curl, std::string url, std::string post_data, std::string &res_string) {
-    std::cout << "connect for " << curl << " to " << url << std::endl;
-
     std::vector<char> res_data;
     const char *post_data_c = post_data.c_str();
     const char *url_c = url.c_str();
@@ -106,8 +111,6 @@ bool connect_curl(CURL **curl, std::string url, std::string post_data, std::stri
     curl_easy_setopt(*curl, CURLOPT_WRITEFUNCTION, curl_on_receive);
     curl_easy_setopt(*curl, CURLOPT_WRITEDATA, &res_data);
 
-    std::cout << "connect B" << std::endl;
-
     // 通信開始
     CURLcode res = curl_easy_perform(*curl);
     if (res != CURLE_OK) {
@@ -117,7 +120,6 @@ bool connect_curl(CURL **curl, std::string url, std::string post_data, std::stri
     }
 
     cleanup_curl(curl);
-    std::cout << "done." << std::endl;
 
     res_string = std::string(res_data.data());
     return true;
@@ -178,13 +180,17 @@ int main(int argc, char *argv[]) {
     }
     
     std::cout << "source:" << source_langs.size() << std::endl;
-    for (auto e : source_langs) {
+    for (std::pair<std::string, std::string> e : source_langs) {
         std::cout << e.first << " : " << e.second << std::endl;
     }
-    std::cout << "target:" << source_langs.size() << std::endl;
-    for (auto e : target_langs) {
+    std::cout << "target:" << target_langs.size() << std::endl;
+    for (std::pair<std::string, std::string> e : target_langs) {
         std::cout << e.first << " : " << e.second << std::endl;
     }
+
+    std::string code;
+    bool b = check_lang_code(source_langs, "JA", code);
+    std::cout << "JA: " << b << " : " << code;
 
     if (argc == 1) {
         // 対話モード
