@@ -13,12 +13,26 @@ std::map<std::string, std::string> source_langs;
 std::map<std::string, std::string> target_langs;
 
 bool check_lang_code(std::map<std::string, std::string> langs, std::string lang_code, std::string& correct_code) {
+    // 大文字に変換
     std::transform(lang_code.begin(), lang_code.end(), lang_code.begin(), ::toupper);
-    std::cout << "check: " << lang_code << std::endl;
+    
+    // キーから検索
     auto itr = langs.begin();
     if ((itr = langs.find(lang_code)) != langs.end()) {
         correct_code = lang_code;
         return true;
+    }
+
+    // 言語名から検索
+    std::transform(lang_code.begin(), lang_code.end(), lang_code.begin(), ::tolower);
+    for (std::pair<std::string, std::string> lang : langs) {
+        std::string lang_temp = lang.second;
+        std::transform(lang_temp.begin(), lang_temp.end(), lang_temp.begin(), ::tolower);
+
+        if (lang_code == lang_temp) {
+            correct_code = lang.first;
+            return true;
+        }
     }
 
     return false;
@@ -190,7 +204,16 @@ int main(int argc, char *argv[]) {
 
     std::string code;
     bool b = check_lang_code(source_langs, "JA", code);
-    std::cout << "JA: " << b << " : " << code;
+    std::cout << "JA: " << b << " : " << code << std::endl;
+
+    b = check_lang_code(source_langs, "Japanese", code);
+    std::cout << "Japanese: " << b << " : " << code << std::endl;
+
+    b = check_lang_code(source_langs, "JAPANESE", code);
+    std::cout << "JAPANESE: " << b << " : " << code << std::endl;
+
+    b = check_lang_code(source_langs, "JApaNese", code);
+    std::cout << "JApaNese: " << b << " : " << code << std::endl;
 
     if (argc == 1) {
         // 対話モード
