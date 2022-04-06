@@ -14,104 +14,6 @@ using namespace std;
 map< string, vector<string> > source_langs;
 map< string, vector<string> > target_langs;
 
-bool check_lang_code(map< string, vector<string> > langs, string lang_code, string& correct_code) {
-    // 大文字に変換
-    transform(lang_code.begin(), lang_code.end(), lang_code.begin(), ::toupper);
-    
-    // キーから検索
-    auto itr = langs.begin();
-    if ((itr = langs.find(lang_code)) != langs.end()) {
-        correct_code = lang_code;
-        return true;
-    }
-
-    // 言語名から検索
-    transform(lang_code.begin(), lang_code.end(), lang_code.begin(), ::tolower);
-    for (pair< string, vector<string> > lang : langs) {
-        for (int i=0; i<lang.second.size(); i++) {
-            string lang_name = lang.second[i];
-            transform(lang_name.begin(), lang_name.end(), lang_name.begin(), ::tolower);
-
-            if (lang_code == lang_name) {
-                correct_code = lang.first;
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-int dialogue_mode(int argc, char *argv[]) {
-    return 0;
-}
-
-int normal_mode(int argc, char *argv[]) {
-    string lang_from;
-    string lang_to;
-
-    cout << "argc=" << argc << endl;
-
-    // 各引数をチェック
-    for (int i=1; i<argc; i++) {
-        string str_argv = string(argv[i]);
-
-        // 1文字目が'-'ならオプション
-        if (argv[i][0] == '-') {
-            if (str_argv == "-h" || str_argv == "-help") {
-
-            }
-            else if (str_argv == "-f" || str_argv == "-from") {
-                if (i+1 == argc) {
-                    cerr << "Error: -fromオプションの後ろに翻訳元言語を指定してください" << endl;
-                    return 1;
-                }
-                if (argv[i+1][0] == '-') {
-                    cerr << "Error: -fromオプションの後ろに翻訳元言語を指定してください" << endl;
-                    return 1;
-                }
-                
-                i++;
-                string str_argv_next = string(argv[i]);
-                string correct_lang_code;
-                cout << "argv: " << str_argv_next << endl;
-                if (!check_lang_code(source_langs, str_argv_next, correct_lang_code)) {
-                    cerr << "Error: " << str_argv_next << ": 言語コードが無効です" << endl;
-                    return 1;
-                }
-                lang_from = correct_lang_code;
-            }
-            else if (str_argv == "-t" || str_argv == "-to") {
-                if (i+1 >= argc) {
-                    cerr << "Error: -fromオプションの後ろに翻訳元言語を指定してください" << endl;
-                    return 1;
-                }
-                if (argv[i+1][0] == '-') {
-                    cerr << "Error: -fromオプションの後ろに翻訳元言語を指定してください" << endl;
-                    return 1;
-                }
-                
-                i++;
-                string str_argv_next = string(argv[i]);
-                string correct_lang_code;
-                cout << "argv: " << str_argv_next << endl;
-                if (!check_lang_code(target_langs, str_argv_next, correct_lang_code)) {
-                    cerr << "Error: " << str_argv_next << ": 言語コードが無効です" << endl;
-                    return 1;
-                }
-                lang_to = correct_lang_code;
-            }
-            else {
-                cout << str_argv << endl;
-            }
-        }
-    }
-
-    cout << "transform from " << lang_from << " to " << lang_to << endl;
-
-    return 0;
-}
-
 // curlの初期設定
 bool setup_curl(CURL **curl) {
     *curl = curl_easy_init();
@@ -164,6 +66,163 @@ bool connect_curl(CURL **curl, string url, string post_data, string &res_string)
 
     res_string = string(res_data.data());
     return true;
+}
+
+bool check_lang_code(map< string, vector<string> > langs, string lang_code, string& correct_code) {
+    // 大文字に変換
+    transform(lang_code.begin(), lang_code.end(), lang_code.begin(), ::toupper);
+    
+    // キーから検索
+    auto itr = langs.begin();
+    if ((itr = langs.find(lang_code)) != langs.end()) {
+        correct_code = lang_code;
+        return true;
+    }
+
+    // 言語名から検索
+    transform(lang_code.begin(), lang_code.end(), lang_code.begin(), ::tolower);
+    for (pair< string, vector<string> > lang : langs) {
+        for (int i=0; i<lang.second.size(); i++) {
+            string lang_name = lang.second[i];
+            transform(lang_name.begin(), lang_name.end(), lang_name.begin(), ::tolower);
+
+            if (lang_code == lang_name) {
+                correct_code = lang.first;
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+int translate(string str, string &translated_text, string source_lang_code, string target_lang_code) {
+    CURL *curl;
+
+    // curlの初期設定
+    if (!setup_curl(&curl)) {
+        cleanup_curl(&curl);
+        return 1;
+    }
+
+    string get_data;
+    string post_data;
+    
+    if (target_lang_code != "") {
+        post_data = "auth_key=" + API_KEY + "&text=" + str + "&target_lang=" + target_lang_code;
+    }
+    else {
+        cerr << "Error: 翻訳先の指定（-tオプション）は入力必須です" << endl;
+        return 1;
+    }
+    if (source_lang_code != "") {
+        post_data += "&source_lang=" + source_lang_code;
+    }
+    
+    if (!connect_curl(&curl, "https://api-free.deepl.com/v2/translate", post_data, get_data)) {
+        cerr << "Error: 翻訳結果の取得に失敗しました" << endl;
+        cleanup_curl(&curl);
+        return false;
+    }
+
+    picojson::value v;
+    string err = picojson::parse(v, get_data);
+    if (!err.empty()) {
+        cerr << "Error: picojson error - " << err << endl;
+        return false;
+    }
+
+    cout << v << endl;
+
+    //translated_text = v;
+    
+    return true;
+}
+
+int dialogue_mode(int argc, char *argv[]) {
+    return 0;
+}
+
+int normal_mode(int argc, char *argv[]) {
+    string lang_from = "";
+    string lang_to = "";
+
+    bool to_code_exists = false;
+    string source_text;
+
+    cout << "argc=" << argc << endl;
+
+    // 各引数をチェック
+    for (int i=1; i<argc; i++) {
+        string str_argv = string(argv[i]);
+
+        // 1文字目が'-'ならオプション
+        if (argv[i][0] == '-') {
+            if (str_argv == "-h" || str_argv == "-help") {
+
+            }
+            else if (str_argv == "-f" || str_argv == "-from") {
+                if (i+1 == argc) {
+                    cerr << "Error: -fromオプションの後ろに翻訳元言語を指定してください" << endl;
+                    return 1;
+                }
+                if (argv[i+1][0] == '-') {
+                    cerr << "Error: -fromオプションの後ろに翻訳元言語を指定してください" << endl;
+                    return 1;
+                }
+                
+                i++;
+                string str_argv_next = string(argv[i]);
+                string correct_lang_code;
+                cout << "argv: " << str_argv_next << endl;
+                if (!check_lang_code(source_langs, str_argv_next, correct_lang_code)) {
+                    cerr << "Error: " << str_argv_next << ": 言語コードが無効です" << endl;
+                    return 1;
+                }
+                lang_from = correct_lang_code;
+            }
+            else if (str_argv == "-t" || str_argv == "-to") {
+                if (i+1 >= argc) {
+                    cerr << "Error: -fromオプションの後ろに翻訳元言語を指定してください" << endl;
+                    return 1;
+                }
+                if (argv[i+1][0] == '-') {
+                    cerr << "Error: -fromオプションの後ろに翻訳元言語を指定してください" << endl;
+                    return 1;
+                }
+                
+                i++;
+                string str_argv_next = string(argv[i]);
+                string correct_lang_code;
+                cout << "argv: " << str_argv_next << endl;
+                if (!check_lang_code(target_langs, str_argv_next, correct_lang_code)) {
+                    cerr << "Error: " << str_argv_next << ": 言語コードが無効です" << endl;
+                    return 1;
+                }
+                lang_to = correct_lang_code;
+
+                to_code_exists = true;
+            }
+        }
+        // それ以外は翻訳文として扱う
+        else {
+            if (source_text.length() > 0)
+                source_text += " ";
+            source_text += argv[i];
+        }
+    }
+
+    cout << "transform from " << lang_from << " to " << lang_to << endl;
+
+    if (!to_code_exists) {
+        cerr << "Error: 翻訳先の指定（-tオプション）は入力必須です" << endl;
+        return 1;
+    }
+
+    string translated_text;
+    translate(source_text, translated_text, lang_from, lang_to);
+
+    return 0;
 }
 
 // 言語コードを取得
