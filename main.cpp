@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <string>
+#include <cstring>
 #include <vector>
 #include <algorithm>
 #include <iterator>
@@ -28,7 +29,6 @@ bool setup_curl(CURL **curl) {
 
 // curlを解放
 void cleanup_curl(CURL **curl) {
-    cout << "cleanup for " << curl << endl;
     curl_easy_cleanup(*curl);
 }
 
@@ -96,6 +96,7 @@ bool check_lang_code(map< string, vector<string> > langs, string lang_code, stri
     return false;
 }
 
+// 翻訳文を取得
 int translate(string str, string &translated_text, string source_lang_code, string target_lang_code) {
     CURL *curl;
 
@@ -132,14 +133,58 @@ int translate(string str, string &translated_text, string source_lang_code, stri
         return false;
     }
 
-    cout << v << endl;
-
-    //translated_text = v;
+    translated_text = "";
+    picojson::object& v_obj = v.get<picojson::object>();
+    picojson::array& v_array = v_obj["translations"].get<picojson::array>();
+    for (auto v_element : v_array) {
+        picojson::object& v_element_obj = v_element.get<picojson::object>();
+        translated_text += v_element_obj["text"].get<string>();
+    }
     
     return true;
 }
 
-int dialogue_mode(int argc, char *argv[]) {
+int dialogue_mode(string source_lang, string target_lang) {
+    while (1) {
+        string input_text;
+        string input_text_buf;
+        string translated_text;
+        
+        // 入力待ち
+        cout << "> ";
+
+        //scanf("%[^\n]", input_text_buf);
+        //input_text = string(input_text_buf);
+
+        while (getline(std::cin, input_text_buf)) {
+            if (input_text_buf[0] == '\0') {
+                break;
+            }
+
+            input_text += input_text_buf;
+        }
+        /*
+        while (fgets(input_text_buf, 1024, stdin) != NULL) {
+            input_text += string(input_text_buf);
+        };*/
+
+        // 終了コード
+        if (input_text == ":q" || input_text == ":quit") {
+            break;
+        }
+
+        if (input_text.length() == 0)
+            continue;
+
+        //std::cout << input_text << std::endl;
+
+        // 翻訳
+        
+        if (translate(input_text, translated_text, source_lang, target_lang)) {
+            std::cout << translated_text << std::endl;
+        }
+    }
+
     return 0;
 }
 
@@ -148,9 +193,8 @@ int normal_mode(int argc, char *argv[]) {
     string lang_to = "";
 
     bool to_code_exists = false;
+    bool text_exists = false;
     string source_text;
-
-    cout << "argc=" << argc << endl;
 
     // 各引数をチェック
     for (int i=1; i<argc; i++) {
@@ -174,7 +218,6 @@ int normal_mode(int argc, char *argv[]) {
                 i++;
                 string str_argv_next = string(argv[i]);
                 string correct_lang_code;
-                cout << "argv: " << str_argv_next << endl;
                 if (!check_lang_code(source_langs, str_argv_next, correct_lang_code)) {
                     cerr << "Error: " << str_argv_next << ": 言語コードが無効です" << endl;
                     return 1;
@@ -194,7 +237,6 @@ int normal_mode(int argc, char *argv[]) {
                 i++;
                 string str_argv_next = string(argv[i]);
                 string correct_lang_code;
-                cout << "argv: " << str_argv_next << endl;
                 if (!check_lang_code(target_langs, str_argv_next, correct_lang_code)) {
                     cerr << "Error: " << str_argv_next << ": 言語コードが無効です" << endl;
                     return 1;
@@ -209,10 +251,14 @@ int normal_mode(int argc, char *argv[]) {
             if (source_text.length() > 0)
                 source_text += " ";
             source_text += argv[i];
+            text_exists = true;
         }
     }
 
-    cout << "transform from " << lang_from << " to " << lang_to << endl;
+    // 原文がない場合は対話モードへ
+    if (!text_exists) {
+        return dialogue_mode(lang_from, lang_to);
+    }
 
     if (!to_code_exists) {
         cerr << "Error: 翻訳先の指定（-tオプション）は入力必須です" << endl;
@@ -220,7 +266,9 @@ int normal_mode(int argc, char *argv[]) {
     }
 
     string translated_text;
-    translate(source_text, translated_text, lang_from, lang_to);
+    if (translate(source_text, translated_text, lang_from, lang_to)) {
+        std::cout << translated_text << std::endl;
+    }
 
     return 0;
 }
@@ -237,13 +285,11 @@ bool get_lang_codes(map< string, vector<string> > &langs, string type) {
 
     string get_data;
     string post_data = "auth_key=" + API_KEY + "&type=" + type;
-    cout << "before" << endl;
     if (!connect_curl(&curl, "https://api-free.deepl.com/v2/languages", post_data, get_data)) {
         cerr << "Error: 言語コードの取得に失敗しました" << endl;
         cleanup_curl(&curl);
         return false;
     }
-    cout << "after" << endl;
 
     picojson::value v;
     string err = picojson::parse(v, get_data);
@@ -251,8 +297,6 @@ bool get_lang_codes(map< string, vector<string> > &langs, string type) {
         cerr << "Error: picojson error - " << err << endl;
         return false;
     }
-
-    cout << v << endl;
     
     picojson::array& ary = v.get<picojson::array>();
     for (picojson::value& el : ary) {
@@ -266,8 +310,6 @@ bool get_lang_codes(map< string, vector<string> > &langs, string type) {
     
     return true;
 }
-
-// 翻訳文を取得
 
 
 int main(int argc, char *argv[]) {
@@ -288,7 +330,7 @@ int main(int argc, char *argv[]) {
         target_langs["PT-PT"].push_back("Portuguese");
         target_langs["EN-GB"].push_back("PT");
     }
-    
+    /*
     cout << "source:" << source_langs.size() << endl;
     for (pair< string, vector<string> > e : source_langs) {
         for (string estr : e.second) {
@@ -300,27 +342,7 @@ int main(int argc, char *argv[]) {
         for (string estr : e.second) {
             cout << e.first << " : " << estr << endl;
         }
-    }
+    }*/
 
-    string code;
-    bool b = check_lang_code(source_langs, "JA", code);
-    cout << "JA: " << b << " : " << code << endl;
-
-    b = check_lang_code(source_langs, "Japanese", code);
-    cout << "Japanese: " << b << " : " << code << endl;
-
-    b = check_lang_code(source_langs, "JAPANESE", code);
-    cout << "JAPANESE: " << b << " : " << code << endl;
-
-    b = check_lang_code(source_langs, "JApaNese", code);
-    cout << "JApaNese: " << b << " : " << code << endl;
-
-    if (argc == 1) {
-        // 対話モード
-        return dialogue_mode(argc, argv);
-    }
-    else if (argc > 2) {
-        // 通常モード
-        return normal_mode(argc, argv);
-    }
+    return normal_mode(argc, argv);
 }
