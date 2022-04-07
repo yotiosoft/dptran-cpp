@@ -145,6 +145,8 @@ int translate(string str, string &translated_text, string source_lang_code, stri
 }
 
 int dialogue_mode(string source_lang, string target_lang) {
+    bool exit = false;
+    
     while (1) {
         string input_text;
         string input_text_buf;
@@ -155,23 +157,30 @@ int dialogue_mode(string source_lang, string target_lang) {
 
         //scanf("%[^\n]", input_text_buf);
         //input_text = string(input_text_buf);
-
+        
+        int w_count = 0;
         while (getline(std::cin, input_text_buf)) {
+            w_count = 1;
+
             if (input_text_buf[0] == '\0') {
                 break;
             }
-
+            if (input_text.length() > 0)
+                input_text += '\n';
             input_text += input_text_buf;
+
+            // 終了コード
+            if (input_text == ":q" || input_text == ":quit") {
+                return 0;
+            }
         }
         /*
         while (fgets(input_text_buf, 1024, stdin) != NULL) {
             input_text += string(input_text_buf);
         };*/
 
-        // 終了コード
-        if (input_text == ":q" || input_text == ":quit") {
-            break;
-        }
+        if (w_count == 0)
+            return 0;
 
         if (input_text.length() == 0)
             continue;
@@ -179,16 +188,71 @@ int dialogue_mode(string source_lang, string target_lang) {
         //std::cout << input_text << std::endl;
 
         // 翻訳
-        
         if (translate(input_text, translated_text, source_lang, target_lang)) {
             std::cout << translated_text << std::endl;
         }
     }
 
+    return 1;
+}
+
+int help() {
+    cout << "[コマンドオプション]" << endl;
+    cout << "\t-f or -from\t"       << "原文の言語を指定（未指定の場合、自動検出）" << endl;
+    cout << "\t-t or -to\t"         << "翻訳先の言語を指定（翻訳実行時は指定必須）" << endl;
+    cout << "\t-h or -help\t"       << "ヘルプを表示" << endl;
+    cout << "\t-v or -version\t"    << "バージョン情報を表示" << endl;
+    cout << endl;
+
+    cout << "[機能]" << endl;
+    cout << "<通常モード>" << endl;
+    cout << "\t1回の実行につき1文を翻訳します。" << endl
+     << "\tコマンド実行時に入力した原文が翻訳されます。" << endl;
+    cout << "<対話モード>" << endl;
+    cout << "\t複数の文を対話形式で翻訳します。複数行に渡る原文が翻訳可能です。" << endl
+     << "\tコマンド実行時に翻訳文を入力しなかった場合、対話モードで起動します。" << endl
+     << "\t※原文を入力し終えたら、2回Enterキー（Returnキー）を押下してください。" << endl
+     << "\t※「:q」または「:quit」を入力すると終了します。" << endl;
+    cout << endl;
+
+    cout << "[言語コード]" << endl;
+    cout << "<Source Languages>" << endl;
+    for (pair< string, vector<string> > e : source_langs) {
+        cout << "\t" << e.first << " : " << e.second[0] << endl;
+    }
+    cout << endl;
+    cout << "<Target Languages>" << endl;
+    for (pair< string, vector<string> > e : target_langs) {
+        cout << "\t" << e.first << " : " << e.second[0] << endl;
+    }
+    cout << "\t" << "EN : " << "English (British)" << endl;
+    cout << "\t" << "PT : " << "Portuguese (European)" << endl;
+    cout << endl;
+
+    cout << "[Usage Example]" << endl;
+    cout << "1) 通常モードで日本語の原文を英語（イギリス英語）に変換" << endl;
+    cout << "\tdptran -f JA -t EN こんにちは" << endl;
+    cout << "2) 通常モードで英語の原文を日本語に変換" << endl;
+    cout << "\tdptran -f EN -t JA Hello" << endl;
+    cout << "3) 通常モードで原文の言語を指定せずに日本語に変換" << endl;
+    cout << "\tdptran -t JA Hello" << endl;
+    cout << "4) 対話モードで原文の言語を指定せずに日本語に変換" << endl;
+    cout << "\tdptran -t JA" << endl;
+
     return 0;
 }
 
-int normal_mode(int argc, char *argv[]) {
+int version() {
+    cout << "dptran ver.1.0" << endl;
+    cout << "(c) YotioSoft 2022" << endl;
+    cout << endl;
+    cout << "This application uses DeepL API v2 for translations." << endl;
+    cout << "Translations are provided by DeepL." << endl;
+
+    return 0;
+}
+
+int parse(int argc, char *argv[]) {
     string lang_from = "";
     string lang_to = "";
 
@@ -202,10 +266,7 @@ int normal_mode(int argc, char *argv[]) {
 
         // 1文字目が'-'ならオプション
         if (argv[i][0] == '-') {
-            if (str_argv == "-h" || str_argv == "-help") {
-
-            }
-            else if (str_argv == "-f" || str_argv == "-from") {
+            if (str_argv == "-f" || str_argv == "-from") {
                 if (i+1 == argc) {
                     cerr << "Error: -fromオプションの後ろに翻訳元言語を指定してください" << endl;
                     return 1;
@@ -244,6 +305,12 @@ int normal_mode(int argc, char *argv[]) {
                 lang_to = correct_lang_code;
 
                 to_code_exists = true;
+            }
+            else if (str_argv == "-h" || str_argv == "-help") {
+                return help();
+            }
+            else if (str_argv == "-v" || str_argv == "-version") {
+                return version();
             }
         }
         // それ以外は翻訳文として扱う
@@ -344,5 +411,5 @@ int main(int argc, char *argv[]) {
         }
     }*/
 
-    return normal_mode(argc, argv);
+    return parse(argc, argv);
 }
