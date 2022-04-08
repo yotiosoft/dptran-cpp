@@ -29,6 +29,8 @@ bool setup_curl(CURL **curl) {
 
 // curlを解放
 void cleanup_curl(CURL **curl) {
+    cout << "\r";
+
     curl_easy_cleanup(*curl);
 }
 
@@ -42,6 +44,8 @@ size_t curl_on_receive(char *ptr, size_t size, size_t nmemb, void *stream) {
 
 // curlの接続設定
 bool connect_curl(CURL **curl, string url, string post_data, string &res_string) {
+    cout << "接続中.." << flush;
+
     vector<char> res_data;
     const char *post_data_c = post_data.c_str();
     const char *url_c = url.c_str();
@@ -58,14 +62,77 @@ bool connect_curl(CURL **curl, string url, string post_data, string &res_string)
     CURLcode res = curl_easy_perform(*curl);
     if (res != CURLE_OK) {
         cerr << "Error: curl_easy_perform failed: " << curl_easy_strerror(res) << endl;
-        curl_easy_cleanup(*curl);
+        cleanup_curl(curl);
         return false;
     }
 
     cleanup_curl(curl);
 
     res_string = string(res_data.data());
+
+    cout << "\r" << string(8, ' ');
+    cout << "\r";
     return true;
+}
+
+// 言語コードを取得
+bool get_lang_codes(map< string, vector<string> > &langs, string type) {
+    CURL *curl;
+
+    // curlの初期設定
+    if (!setup_curl(&curl)) {
+        cleanup_curl(&curl);
+        return 1;
+    }
+
+    string get_data;
+    string post_data = "auth_key=" + API_KEY + "&type=" + type;
+    if (!connect_curl(&curl, "https://api-free.deepl.com/v2/languages", post_data, get_data)) {
+        cerr << "Error: 言語コードの取得に失敗しました" << endl;
+        cleanup_curl(&curl);
+        return false;
+    }
+
+    picojson::value v;
+    string err = picojson::parse(v, get_data);
+    if (!err.empty()) {
+        cerr << "Error: picojson error - " << err << endl;
+        return false;
+    }
+    
+    picojson::array& ary = v.get<picojson::array>();
+    for (picojson::value& el : ary) {
+        picojson::object& el_obj = el.get<picojson::object>();
+        
+        string code = el_obj["language"].get<string>();
+        string name = el_obj["name"].get<string>();
+        
+        langs[code].push_back(name);
+    }
+    
+    return true;
+}
+
+int get_all_langs() {
+    // 言語コードを取得
+    if (!get_lang_codes(source_langs, "source")) {
+        return 1;
+    }
+    if (!get_lang_codes(target_langs, "target")) {
+        return 1;
+    }
+
+    // target変換用の言語コードも用意
+    if (target_langs.count("EN-GB")) {
+        target_langs["EN-GB"].push_back("English");
+        target_langs["EN-GB"].push_back("EN");
+    }
+    if (target_langs.count("PT-PT")) {
+        target_langs["PT-PT"].push_back("Portuguese");
+        target_langs["EN-GB"].push_back("PT");
+    }
+
+    return 0;
 }
 
 bool check_lang_code(map< string, vector<string> > langs, string lang_code, string& correct_code) {
@@ -148,9 +215,9 @@ int dialogue_mode(string source_lang, string target_lang) {
     bool exit = false;
     
     while (1) {
-        string input_text;
-        string input_text_buf;
-        string translated_text;
+        string input_text = "";
+        string input_text_buf = "";
+        string translated_text = "";
         
         // 入力待ち
         cout << "> ";
@@ -179,8 +246,10 @@ int dialogue_mode(string source_lang, string target_lang) {
             input_text += string(input_text_buf);
         };*/
 
-        if (w_count == 0)
+        if (w_count == 0) {
+            cout << endl;
             return 0;
+        }
 
         if (input_text.length() == 0)
             continue;
@@ -202,6 +271,7 @@ int help() {
     cout << "\t-t or -to\t"         << "翻訳先の言語を指定（翻訳実行時は指定必須）" << endl;
     cout << "\t-h or -help\t"       << "ヘルプを表示" << endl;
     cout << "\t-v or -version\t"    << "バージョン情報を表示" << endl;
+    cout << "\t-r or -remain\t"     << "DeepLへ送信可能な残りの文字数を表示" << endl;
     cout << endl;
 
     cout << "[機能]" << endl;
@@ -220,7 +290,7 @@ int help() {
     for (pair< string, vector<string> > e : source_langs) {
         cout << "\t" << e.first << " : " << e.second[0] << endl;
     }
-    cout << endl;
+    
     cout << "<Target Languages>" << endl;
     for (pair< string, vector<string> > e : target_langs) {
         cout << "\t" << e.first << " : " << e.second[0] << endl;
@@ -252,12 +322,44 @@ int version() {
     return 0;
 }
 
+int remain() {
+    CURL *curl;
+
+    // curlの初期設定
+    if (!setup_curl(&curl)) {
+        cleanup_curl(&curl);
+        return 1;
+    }
+
+    string get_data;
+    string post_data = "auth_key=" + API_KEY;
+    if (!connect_curl(&curl, "https://api-free.deepl.com/v2/usage", post_data, get_data)) {
+        cerr << "Error: データの取得に失敗しました" << endl;
+        cleanup_curl(&curl);
+        return false;
+    }
+
+    picojson::value v;
+    string err = picojson::parse(v, get_data);
+    if (!err.empty()) {
+        cerr << "Error: picojson error - " << err << endl;
+        return false;
+    }
+
+    picojson::object& obj = v.get<picojson::object>();
+    cout << "Character count:\t\t" << int(obj["character_count"].get<double>()) << endl;
+    cout << "Character limit (per month):\t" << int(obj["character_limit"].get<double>()) << endl;
+    
+    return true;
+}
+
 int parse(int argc, char *argv[]) {
     string lang_from = "";
     string lang_to = "";
 
     bool to_code_exists = false;
     bool text_exists = false;
+    bool got_langs = false;
     string source_text;
 
     // 各引数をチェック
@@ -274,6 +376,14 @@ int parse(int argc, char *argv[]) {
                 if (argv[i+1][0] == '-') {
                     cerr << "Error: -fromオプションの後ろに翻訳元言語を指定してください" << endl;
                     return 1;
+                }
+
+                // 言語コードを取得
+                if (!got_langs) {
+                    if (get_all_langs() > 0) {
+                        return 1;
+                    }
+                    got_langs = true;
                 }
                 
                 i++;
@@ -294,6 +404,14 @@ int parse(int argc, char *argv[]) {
                     cerr << "Error: -fromオプションの後ろに翻訳元言語を指定してください" << endl;
                     return 1;
                 }
+
+                // 言語コードを取得
+                if (!got_langs) {
+                    if (get_all_langs() > 0) {
+                        return 1;
+                    }
+                    got_langs = true;
+                }
                 
                 i++;
                 string str_argv_next = string(argv[i]);
@@ -307,10 +425,20 @@ int parse(int argc, char *argv[]) {
                 to_code_exists = true;
             }
             else if (str_argv == "-h" || str_argv == "-help") {
+                // 言語コードを取得
+                if (!got_langs) {
+                    if (get_all_langs() > 0) {
+                        return 1;
+                    }
+                    got_langs = true;
+                }
                 return help();
             }
             else if (str_argv == "-v" || str_argv == "-version") {
                 return version();
+            }
+            else if (str_argv == "-r" || str_argv == "-remain") {
+                return remain();
             }
         }
         // それ以外は翻訳文として扱う
@@ -340,76 +468,6 @@ int parse(int argc, char *argv[]) {
     return 0;
 }
 
-// 言語コードを取得
-bool get_lang_codes(map< string, vector<string> > &langs, string type) {
-    CURL *curl;
-
-    // curlの初期設定
-    if (!setup_curl(&curl)) {
-        cleanup_curl(&curl);
-        return 1;
-    }
-
-    string get_data;
-    string post_data = "auth_key=" + API_KEY + "&type=" + type;
-    if (!connect_curl(&curl, "https://api-free.deepl.com/v2/languages", post_data, get_data)) {
-        cerr << "Error: 言語コードの取得に失敗しました" << endl;
-        cleanup_curl(&curl);
-        return false;
-    }
-
-    picojson::value v;
-    string err = picojson::parse(v, get_data);
-    if (!err.empty()) {
-        cerr << "Error: picojson error - " << err << endl;
-        return false;
-    }
-    
-    picojson::array& ary = v.get<picojson::array>();
-    for (picojson::value& el : ary) {
-        picojson::object& el_obj = el.get<picojson::object>();
-        
-        string code = el_obj["language"].get<string>();
-        string name = el_obj["name"].get<string>();
-        
-        langs[code].push_back(name);
-    }
-    
-    return true;
-}
-
-
 int main(int argc, char *argv[]) {
-    // 言語コードを取得
-    if (!get_lang_codes(source_langs, "source")) {
-        return 1;
-    }
-    if (!get_lang_codes(target_langs, "target")) {
-        return 1;
-    }
-
-    // target変換用の言語コードも用意
-    if (target_langs.count("EN-GB")) {
-        target_langs["EN-GB"].push_back("English");
-        target_langs["EN-GB"].push_back("EN");
-    }
-    if (target_langs.count("PT-PT")) {
-        target_langs["PT-PT"].push_back("Portuguese");
-        target_langs["EN-GB"].push_back("PT");
-    }
-    /*
-    cout << "source:" << source_langs.size() << endl;
-    for (pair< string, vector<string> > e : source_langs) {
-        for (string estr : e.second) {
-            cout << e.first << " : " << estr << endl;
-        }
-    }
-    cout << "target:" << target_langs.size() << endl;
-    for (pair< string, vector<string> > e : target_langs) {
-        for (string estr : e.second) {
-            cout << e.first << " : " << estr << endl;
-        }
-    }*/
-
     return parse(argc, argv);
 }
