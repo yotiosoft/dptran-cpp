@@ -227,7 +227,7 @@ int dialogue_mode(string source_lang, string target_lang) {
         
         int w_count = 0;
         while (getline(std::cin, input_text_buf)) {
-            w_count = 1;
+            w_count++;
 
             if (input_text_buf[0] == '\0') {
                 break;
@@ -253,6 +253,51 @@ int dialogue_mode(string source_lang, string target_lang) {
 
         if (input_text.length() == 0)
             continue;
+
+        //std::cout << input_text << std::endl;
+
+        // 翻訳
+        if (translate(input_text, translated_text, source_lang, target_lang)) {
+            std::cout << translated_text << std::endl;
+        }
+    }
+
+    return 1;
+}
+
+int pipe_mode(string source_lang, string target_lang) {
+    bool exit = false;
+    
+    while (1) {
+        string input_text = "";
+        string input_text_buf = "";
+        string translated_text = "";
+
+        //scanf("%[^\n]", input_text_buf);
+        //input_text = string(input_text_buf);
+        
+        int w_count = 0;
+        while (getline(std::cin, input_text_buf)) {
+            w_count ++;
+
+            if (input_text_buf[0] == '\0') {
+                break;
+            }
+            if (input_text.length() > 0)
+                input_text += '\n';
+            input_text += input_text_buf;
+
+            // 終了コード
+            if (input_text == ":q" || input_text == ":quit") {
+                return 0;
+            }
+        }
+        
+        if (w_count == 0)
+            return 0;
+
+        if (input_text.length() == 0)
+            return 0;
 
         //std::cout << input_text << std::endl;
 
@@ -360,6 +405,7 @@ int parse(int argc, char *argv[]) {
     bool to_code_exists = false;
     bool text_exists = false;
     bool got_langs = false;
+    bool pipe = false;
     string source_text;
 
     // 各引数をチェック
@@ -424,6 +470,9 @@ int parse(int argc, char *argv[]) {
 
                 to_code_exists = true;
             }
+            else if (str_argv == "-p" || str_argv == "-pipe") {
+                pipe = true;
+            }
             else if (str_argv == "-h" || str_argv == "-help") {
                 // 言語コードを取得
                 if (!got_langs) {
@@ -450,14 +499,19 @@ int parse(int argc, char *argv[]) {
         }
     }
 
-    // 原文がない場合は対話モードへ
-    if (!text_exists) {
-        return dialogue_mode(lang_from, lang_to);
-    }
-
     if (!to_code_exists) {
         cerr << "Error: 翻訳先の指定（-tオプション）は入力必須です" << endl;
         return 1;
+    }
+
+     // -pオプションの場合はパイプモードへ
+    if (pipe) {
+        return pipe_mode(lang_from, lang_to);
+    }
+
+    // 原文がない場合は対話モードへ
+    if (!text_exists) {
+        return dialogue_mode(lang_from, lang_to);
     }
 
     string translated_text;
