@@ -177,13 +177,8 @@ int translate(string str, string &translated_text, string source_lang_code, stri
     string get_data;
     string post_data;
     
-    if (target_lang_code != "") {
-        post_data = "auth_key=" + API_KEY + "&text=" + str + "&target_lang=" + target_lang_code;
-    }
-    else {
-        cerr << "Error: 翻訳先の指定（-tオプション）は入力必須です" << endl;
-        return 1;
-    }
+    post_data = "auth_key=" + API_KEY + "&text=" + str + "&target_lang=" + target_lang_code;
+    
     if (source_lang_code != "") {
         post_data += "&source_lang=" + source_lang_code;
     }
@@ -318,8 +313,8 @@ int pipe_mode(string source_lang, string target_lang) {
 
 int help() {
     cout << "[コマンドオプション]" << endl;
-    cout << "\t-f or -from\t"       << "原文の言語を指定（未指定の場合、自動検出）" << endl;
-    cout << "\t-t or -to\t"         << "翻訳先の言語を指定（翻訳実行時は指定必須）" << endl;
+    cout << "\t-f or -from\t"       << "原文の言語を指定（規定：自動検出）" << endl;
+    cout << "\t-t or -to\t"         << "翻訳先の言語を指定（規定：日本語）" << endl;
     cout << "\t-p or -pipe\t"       << "パイプラインモードで実行" << endl;
     cout << "\t-h or -help\t"       << "ヘルプを表示" << endl;
     cout << "\t-v or -version\t"    << "バージョン情報を表示" << endl;
@@ -354,15 +349,17 @@ int help() {
     cout << "\t" << "PT : " << "Portuguese (European)" << endl;
     cout << endl;
 
-    cout << "[Usage Example]" << endl;
-    cout << "1) 通常モードで日本語の原文を英語（イギリス英語）に変換" << endl;
+    cout << "[Examples]" << endl;
+    cout << "1) 通常モードで日本語の原文を英語（イギリス英語）に翻訳" << endl;
     cout << "\tdptran -f JA -t EN こんにちは" << endl;
-    cout << "2) 通常モードで英語の原文を日本語に変換" << endl;
+    cout << "2) 通常モードで英語の原文を日本語に翻訳" << endl;
     cout << "\tdptran -f EN -t JA Hello" << endl;
-    cout << "3) 通常モードで原文の言語を指定せずに日本語に変換" << endl;
+    cout << "3) 通常モードで原文の言語を指定せずに日本語に翻訳" << endl;
     cout << "\tdptran -t JA Hello" << endl;
-    cout << "4) 対話モードで原文の言語を指定せずに日本語に変換" << endl;
+    cout << "4) 対話モードで原文の言語を指定せずに日本語に翻訳" << endl;
     cout << "\tdptran -t JA" << endl;
+    cout << "5) パイプラインモードによりcatコマンドで読み取った\"file.txt\"の内容を日本語に翻訳" << endl;
+    cout << "\tcat file.txt | dptran -t JA -p" << endl;
 
     return 0;
 }
@@ -514,9 +511,9 @@ int parse(int argc, char *argv[]) {
         }
     }
 
+    // 翻訳先言語が指定されていない場合、翻訳先言語を日本語に設定
     if (!to_code_exists) {
-        cerr << "Error: 翻訳先の指定（-tオプション）は入力必須です" << endl;
-        return 1;
+        lang_to = "JA";
     }
 
      // -pオプションの場合はパイプモードへ
