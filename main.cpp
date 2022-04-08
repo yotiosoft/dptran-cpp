@@ -44,8 +44,6 @@ size_t curl_on_receive(char *ptr, size_t size, size_t nmemb, void *stream) {
 
 // curlの接続設定
 bool connect_curl(CURL **curl, string url, string post_data, string &res_string) {
-    cout << "接続中.." << flush;
-
     vector<char> res_data;
     const char *post_data_c = post_data.c_str();
     const char *url_c = url.c_str();
@@ -70,8 +68,6 @@ bool connect_curl(CURL **curl, string url, string post_data, string &res_string)
 
     res_string = string(res_data.data());
 
-    cout << "\r" << string(8, ' ');
-    cout << "\r";
     return true;
 }
 
@@ -87,11 +83,16 @@ bool get_lang_codes(map< string, vector<string> > &langs, string type) {
 
     string get_data;
     string post_data = "auth_key=" + API_KEY + "&type=" + type;
+    cout << "接続中.." << flush;
     if (!connect_curl(&curl, "https://api-free.deepl.com/v2/languages", post_data, get_data)) {
+        cout << "\r" << string(8, ' ');
+        cout << "\r";
         cerr << "Error: 言語コードの取得に失敗しました" << endl;
         cleanup_curl(&curl);
         return false;
     }
+    cout << "\r" << string(8, ' ');
+    cout << "\r";
 
     picojson::value v;
     string err = picojson::parse(v, get_data);
@@ -187,11 +188,16 @@ int translate(string str, string &translated_text, string source_lang_code, stri
         post_data += "&source_lang=" + source_lang_code;
     }
     
+    cout << "翻訳中.." << flush;
     if (!connect_curl(&curl, "https://api-free.deepl.com/v2/translate", post_data, get_data)) {
+        cout << "\r" << string(8, ' ');
+        cout << "\r";
         cerr << "Error: 翻訳結果の取得に失敗しました" << endl;
         cleanup_curl(&curl);
         return false;
     }
+    cout << "\r" << string(8, ' ');
+    cout << "\r";
 
     picojson::value v;
     string err = picojson::parse(v, get_data);
@@ -314,6 +320,7 @@ int help() {
     cout << "[コマンドオプション]" << endl;
     cout << "\t-f or -from\t"       << "原文の言語を指定（未指定の場合、自動検出）" << endl;
     cout << "\t-t or -to\t"         << "翻訳先の言語を指定（翻訳実行時は指定必須）" << endl;
+    cout << "\t-p or -pipe\t"       << "パイプラインモードで実行" << endl;
     cout << "\t-h or -help\t"       << "ヘルプを表示" << endl;
     cout << "\t-v or -version\t"    << "バージョン情報を表示" << endl;
     cout << "\t-r or -remain\t"     << "DeepLへ送信可能な残りの文字数を表示" << endl;
@@ -328,6 +335,9 @@ int help() {
      << "\tコマンド実行時に翻訳文を入力しなかった場合、対話モードで起動します。" << endl
      << "\t※原文を入力し終えたら、2回Enterキー（Returnキー）を押下してください。" << endl
      << "\t※「:q」または「:quit」を入力すると終了します。" << endl;
+    cout << "<パイプラインモード>" << endl;
+    cout << "\t他のコマンドの実行結果をパイプラインで受け取り翻訳できます。" << endl
+     << "\t-pオプションで利用可能です。" << endl;
     cout << endl;
 
     cout << "[言語コード]" << endl;
@@ -378,11 +388,16 @@ int remain() {
 
     string get_data;
     string post_data = "auth_key=" + API_KEY;
+    cout << "接続中.." << flush;
     if (!connect_curl(&curl, "https://api-free.deepl.com/v2/usage", post_data, get_data)) {
+        cout << "\r" << string(8, ' ');
+        cout << "\r";
         cerr << "Error: データの取得に失敗しました" << endl;
         cleanup_curl(&curl);
         return false;
     }
+    cout << "\r" << string(8, ' ');
+    cout << "\r";
 
     picojson::value v;
     string err = picojson::parse(v, get_data);
