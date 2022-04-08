@@ -40,6 +40,8 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 // for isnan/isinf
 #if __cplusplus>=201103L
 # include <cmath>
