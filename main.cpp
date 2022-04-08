@@ -353,13 +353,15 @@ int help() {
     cout << "1) 通常モードで日本語の原文を英語（イギリス英語）に翻訳" << endl;
     cout << "\tdptran -f JA -t EN こんにちは" << endl;
     cout << "2) 通常モードで英語の原文を日本語に翻訳" << endl;
-    cout << "\tdptran -f EN -t JA Hello" << endl;
+    cout << "\tdptran -f EN Hello" << endl;
     cout << "3) 通常モードで原文の言語を指定せずに日本語に翻訳" << endl;
-    cout << "\tdptran -t JA Hello" << endl;
+    cout << "\tdptran Hello" << endl;
     cout << "4) 対話モードで原文の言語を指定せずに日本語に翻訳" << endl;
-    cout << "\tdptran -t JA" << endl;
+    cout << "\tdptran" << endl;
     cout << "5) パイプラインモードによりcatコマンドで読み取った\"file.txt\"の内容を日本語に翻訳" << endl;
-    cout << "\tcat file.txt | dptran -t JA -p" << endl;
+    cout << "\tcat file.txt | dptran -p" << endl;
+    cout << "6) パイプラインモードによりmanページの内容を日本語に翻訳" << endl;
+    cout << "\tman ls | col -b | dptran -p" << endl;
 
     return 0;
 }
