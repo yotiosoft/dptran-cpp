@@ -1,2 +1,4 @@
 apikey.h
-*.o
+connect.o
+main.o
+processes.o
