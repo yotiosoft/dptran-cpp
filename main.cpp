@@ -1,4 +1,5 @@
 #include "processes.h"
+#include "settings.h"
 
 using namespace std;
 
@@ -302,6 +303,34 @@ int parse(int argc, char *argv[]) {
             else if (str_argv == "-p" || str_argv == "-pipe") {
                 pipe = true;
             }
+            else if (str_argv == "-s" || str_argv == "-setting") {
+                if (i+1 >= argc) {
+                    cerr << "Error: 設定項目を指定してください" << endl;
+                    return 1;
+                }
+                if (i+2 >= argc) {
+                    cerr << "Error: 設定内容を指定してください" << endl;
+                    return 1;
+                }
+                if (argv[i+1][0] == '-') {
+                    cerr << "Error: 設定項目を指定してください" << endl;
+                    return 1;
+                }
+
+                i++;
+                string str_argv_next = string(argv[i]);
+                if (str_argv_next == "key") {
+                    argc -= i + 1;
+                    argv = argv + i + 1;
+                    return setting(KEY, argc, argv);
+                }
+                else if (str_argv_next == "clear") {
+                    return setting(CLEAR, argc, argv);
+                }
+
+                cerr << "Error: " << str_argv_next << ": 設定項目名が無効です" << endl;
+                return 1;
+            }
             else if (str_argv == "-h" || str_argv == "-help") {
                 // 言語コードを取得
                 if (!got_langs) {
@@ -317,6 +346,10 @@ int parse(int argc, char *argv[]) {
             }
             else if (str_argv == "-r" || str_argv == "-remain") {
                 return remain();
+            }
+            else {
+                cout << "Error: " << str_argv << ": オプションが無効です" << endl;
+                return 1;
             }
         }
         // それ以外は翻訳文として扱う
