@@ -1,6 +1,5 @@
 #include "connect.h"
 #include "picojson/picojson.h"
-#include "apikey.h"
 
 // 言語コードを取得
 bool get_lang_codes(map< string, vector<string> > &langs, string api_key,  string type);

@@ -197,7 +197,6 @@ int help() {
 int version() {
     cout << "dptran ver.1.0" << endl;
     cout << "(c) YotioSoft 2022" << endl;
-    cout << endl;
     cout << "This application uses DeepL API v2 for translations." << endl;
     cout << "Translations are provided by DeepL." << endl;
 
