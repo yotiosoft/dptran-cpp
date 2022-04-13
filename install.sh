@@ -2,8 +2,9 @@
 
 DEST="${HOME}/dptran"
 PROGRAM="dptran"
+SRC="${HOME}/.bash_profile"
 
 mkdir -p ${DEST}
 install -s ${PROGRAM} ${DEST}
-export PATH=${PATH}:${DEST}
-source .bashrc
+echo "export PATH=\"\$PATH:${DEST}\"" >> ${SRC}
+source ${SRC}
