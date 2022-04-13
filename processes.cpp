@@ -1,7 +1,7 @@
 #include "processes.h"
 
 // 言語コードを取得
-bool get_lang_codes(map< string, vector<string> > &langs, string type) {
+bool get_lang_codes(map< string, vector<string> > &langs, string api_key, string type) {
     CURL *curl;
 
     // curlの初期設定
@@ -11,7 +11,7 @@ bool get_lang_codes(map< string, vector<string> > &langs, string type) {
     }
 
     string get_data;
-    string post_data = "auth_key=" + API_KEY + "&type=" + type;
+    string post_data = "auth_key=" + api_key + "&type=" + type;
     cout << "接続中.." << flush;
     if (!connect_curl(&curl, "https://api-free.deepl.com/v2/languages", post_data, get_data)) {
         cout << "\r" << string(8, ' ');
@@ -73,7 +73,7 @@ bool check_lang_code(map< string, vector<string> > langs, string lang_code, stri
 }
 
 // 翻訳文を取得
-int translate(string str, string &translated_text, string source_lang_code, string target_lang_code) {
+int translate(string api_key, string str, string &translated_text, string source_lang_code, string target_lang_code) {
     CURL *curl;
 
     // curlの初期設定
@@ -85,7 +85,7 @@ int translate(string str, string &translated_text, string source_lang_code, stri
     string get_data;
     string post_data;
     
-    post_data = "auth_key=" + API_KEY + "&text=" + str + "&target_lang=" + target_lang_code;
+    post_data = "auth_key=" + api_key + "&text=" + str + "&target_lang=" + target_lang_code;
     
     if (source_lang_code != "") {
         post_data += "&source_lang=" + source_lang_code;

@@ -7,11 +7,17 @@ map< string, vector<string> > source_langs;
 map< string, vector<string> > target_langs;
 
 int get_all_langs() {
-    // 言語コードを取得
-    if (!get_lang_codes(source_langs, "source")) {
+    // APIキー取得
+    string api_key;
+    if (get_key(api_key) != 0) {
         return 1;
     }
-    if (!get_lang_codes(target_langs, "target")) {
+
+    // 言語コードを取得
+    if (!get_lang_codes(source_langs, api_key, "source")) {
+        return 1;
+    }
+    if (!get_lang_codes(target_langs, api_key, "target")) {
         return 1;
     }
 
@@ -30,7 +36,14 @@ int get_all_langs() {
 
 int dialogue_mode(string source_lang, string target_lang) {
     bool exit = false;
+
+    // APIキー取得
+    string api_key;
+    if (get_key(api_key) != 0) {
+        return 1;
+    }
     
+    // 対話
     while (1) {
         string input_text = "";
         string input_text_buf = "";
@@ -58,10 +71,6 @@ int dialogue_mode(string source_lang, string target_lang) {
                 return 0;
             }
         }
-        /*
-        while (fgets(input_text_buf, 1024, stdin) != NULL) {
-            input_text += string(input_text_buf);
-        };*/
 
         if (w_count == 0) {
             cout << endl;
@@ -71,10 +80,8 @@ int dialogue_mode(string source_lang, string target_lang) {
         if (input_text.length() == 0)
             continue;
 
-        //std::cout << input_text << std::endl;
-
         // 翻訳
-        if (translate(input_text, translated_text, source_lang, target_lang)) {
+        if (translate(api_key, input_text, translated_text, source_lang, target_lang)) {
             std::cout << translated_text << std::endl;
         }
     }
@@ -84,7 +91,14 @@ int dialogue_mode(string source_lang, string target_lang) {
 
 int pipe_mode(string source_lang, string target_lang) {
     bool exit = false;
+
+    // APIキー取得
+    string api_key;
+    if (get_key(api_key) != 0) {
+        return 1;
+    }
     
+    // パイプから読み込み＆翻訳
     while (1) {
         string input_text = "";
         string input_text_buf = "";
@@ -116,10 +130,8 @@ int pipe_mode(string source_lang, string target_lang) {
         if (input_text.length() == 0)
             return 0;
 
-        //std::cout << input_text << std::endl;
-
         // 翻訳
-        if (translate(input_text, translated_text, source_lang, target_lang)) {
+        if (translate(api_key, input_text, translated_text, source_lang, target_lang)) {
             std::cout << translated_text << std::endl;
         }
     }
@@ -201,8 +213,13 @@ int remain() {
         return 1;
     }
 
+    string api_key;
+    if (get_key(api_key) != 0) {
+        return 1;
+    }
+
     string get_data;
-    string post_data = "auth_key=" + API_KEY;
+    string post_data = "auth_key=" + api_key;
     cout << "接続中.." << flush;
     if (!connect_curl(&curl, "https://api-free.deepl.com/v2/usage", post_data, get_data)) {
         cout << "\r" << string(8, ' ');
@@ -320,12 +337,10 @@ int parse(int argc, char *argv[]) {
                 i++;
                 string str_argv_next = string(argv[i]);
                 if (str_argv_next == "key") {
-                    argc -= i + 1;
-                    argv = argv + i + 1;
-                    return setting(KEY, argc, argv);
+                    return setting(KEY, argc, argv, i);
                 }
                 else if (str_argv_next == "clear") {
-                    return setting(CLEAR, argc, argv);
+                    return setting(CLEAR, argc, argv, i);
                 }
 
                 cerr << "Error: " << str_argv_next << ": 設定項目名が無効です" << endl;
@@ -376,8 +391,16 @@ int parse(int argc, char *argv[]) {
         return dialogue_mode(lang_from, lang_to);
     }
 
+    // 通常モード
+    // APIキー取得
+    string api_key;
+    if (get_key(api_key) != 0) {
+        return 1;
+    }
+
+    // 翻訳
     string translated_text;
-    if (translate(source_text, translated_text, lang_from, lang_to)) {
+    if (translate(api_key, source_text, translated_text, lang_from, lang_to)) {
         std::cout << translated_text << std::endl;
     }
 

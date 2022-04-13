@@ -1,6 +1,6 @@
+SHELL	= /bin/bash
 CC		= g++
-DEST	= /usr/local/dptran
-BIN		= /usr/local/bin
+DEST	= $(HOME)/.dptran
 LIBS	= -lcurl
 OBJS	= main.o processes.o connect.o settings.o
 PROGRAM = dptran
@@ -9,14 +9,15 @@ $(PROGRAM): $(OBJS)
 		$(CC) $(OBJS) $(LIBS) -o $(PROGRAM)
 
 clean:		
-		sudo rm -f *.o *~ $(PROGRAM)
+		sudo rm -f *.o *~ $(DEST)
 
 install:	$(PROGRAM)
-		sudo mkdir -p $(DEST)
-		sudo install -s $(PROGRAM) $(DEST)
-		sudo ln -f -s $(DEST)/$(PROGRAM) $(BIN)
+		mkdir -p $(DEST)
+		install -s $(PROGRAM) $(DEST)
+		export PATH=$(PATH):$(DEST)
+		source $(HOME)/.bashrc
 
 uninstall:
-		sudo rm -f $(BIN)/$(PROGRAM)
-		sudo rm -rf $(DEST)
+		export -n PATH=$PATH:$(DEST)
+		rm -rf $(DEST)
 		
