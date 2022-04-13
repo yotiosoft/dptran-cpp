@@ -5,5 +5,9 @@ PROGRAM="dptran"
 SRC="${HOME}/.bash_profile"
 
 rm -rf ${DEST}
-sed -i '' '/dptran/d' ${SRC}
+if [ "$(uname)" == 'Darwin' ]; then
+    sed -i '' '/dptran/d' ${SRC}
+elif [ "$(expr substr $(uname -s) 1 5)" == 'Linux' ]; then
+    sed -i '/dptran/d' ${SRC}
+fi
 source ${SRC}
