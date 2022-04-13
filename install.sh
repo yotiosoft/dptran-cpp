@@ -2,7 +2,7 @@
 
 DEST="${HOME}/dptran_bin"
 PROGRAM="dptran"
-SRC="${HOME}/.bash_profile"
+SRC="${HOME}/.bashrc"
 
 mkdir -p ${DEST}
 install -s ${PROGRAM} ${DEST}

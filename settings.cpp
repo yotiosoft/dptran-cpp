@@ -26,7 +26,7 @@ int settings_init() {
 int load_settings() {
     // 設定ファイルがない場合は新規作成
     int ret;
-    std::ifstream ifs(/*DPTRAN_DIR + */SETTING_FILE);
+    std::ifstream ifs(DPTRAN_DIR + SETTING_FILE);
     if (!ifs.is_open()) {
         ifs.close();
         return settings_init();
@@ -60,7 +60,7 @@ int save_settings() {
     obj.insert(make_pair("key", picojson::value(settings_s.key)));
 
     ofstream ofs;
-    ofs.open(/*DPTRAN_DIR + */SETTING_FILE, ios::out);
+    ofs.open(DPTRAN_DIR + SETTING_FILE, ios::out);
     if (ofs.fail()) {
         cerr << "Error: 設定ファイルを保存できません" << endl;
         return 1;
