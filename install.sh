@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DEST="${HOME}/dptran"
+DEST="${HOME}/dptran_bin"
 PROGRAM="dptran"
 SRC="${HOME}/.bash_profile"
 

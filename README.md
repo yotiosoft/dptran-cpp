@@ -10,17 +10,27 @@
 
 ```bash
 $ git clone https://github.com/YotioSoft/dptran.git
+$ cd ./dptran
 $ make
-$ install_mac.sh
+$ install.sh
 ```
+
+上記のコマンドを実行後、端末を再起動することでdptranコマンドが利用可能になります。
 
 ### for Linux
 
+Linuxの場合、下記のライブラリが必要です。  
+
+- libcurl4-openssl-dev
+
 ```bash
 $ git clone https://github.com/YotioSoft/dptran.git
+$ cd ./dptran
 $ make
-$ install_linux.sh
+$ install.sh
 ```
+
+上記のコマンドを実行後、端末を再起動することでdptranコマンドが利用可能になります。
 
 ## ご利用方法
 

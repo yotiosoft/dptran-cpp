@@ -4,7 +4,7 @@
 
 using namespace std;
 
-#define DPTRAN_DIR      string(getenv("HOME")) + "/dptran/"
+#define DPTRAN_DIR      string(getenv("HOME")) + "/dptran_bin/"
 #define SETTING_FILE    "settings.json"
 
 enum setting_type {
