@@ -6,28 +6,17 @@
 
 準備中
 
-### for macOS
+### for macOS & Linux
+
+下記のライブラリが必要です。  
+
+- libcurl-dev (libcurl4-openssl-dev)
 
 ```bash
 $ git clone https://github.com/YotioSoft/dptran.git
 $ cd ./dptran
 $ make
-$ install.sh
-```
-
-上記のコマンドを実行後、端末を再起動することでdptranコマンドが利用可能になります。
-
-### for Linux
-
-Linuxの場合、下記のライブラリが必要です。  
-
-- libcurl4-openssl-dev
-
-```bash
-$ git clone https://github.com/YotioSoft/dptran.git
-$ cd ./dptran
-$ make
-$ install.sh
+$ bash ./install.sh
 ```
 
 上記のコマンドを実行後、端末を再起動することでdptranコマンドが利用可能になります。
@@ -103,3 +92,17 @@ Character limit (per month):	500000
 ```
 
 DeepL APIで翻訳可能な残りの文字数が表示できます。DeepL APIのフリープランの場合、1ヶ月あたり50万文字まで翻訳可能です。
+
+## アンインストール方法
+
+### for Windows
+
+準備中
+
+### for macOS & Linux
+
+```bash
+$ bash ./uninstall.sh
+```
+
+上記のコマンドを実行後、端末を再起動することでアンインストール完了です。
