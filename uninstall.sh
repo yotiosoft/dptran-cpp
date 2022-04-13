@@ -2,12 +2,14 @@
 
 DEST="${HOME}/dptran_bin"
 PROGRAM="dptran"
-SRC="${HOME}/.bash_profile"
+SRC="${HOME}/.bashrc"
 
 rm -rf ${DEST}
-if [ "$(uname)" == 'Darwin' ]; then
+if [ "$(uname -a | grep Darwin)" ]; then
     sed -i '' '/dptran/d' ${SRC}
-elif [ "$(expr substr $(uname -s) 1 5)" == 'Linux' ]; then
+elif [ "$(uname -a | grep Linux)" ]; then
     sed -i '/dptran/d' ${SRC}
 fi
 source ${SRC}
+
+echo "アンインストール完了. ターミナルを再起動してください"
