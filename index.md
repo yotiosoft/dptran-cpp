@@ -76,28 +76,92 @@ SYNOPSIS ls [-@ABCFGHILOPRSTUWabcdefghiklmnopqrstuvwxy1%,] [--color=when][-D for
 DeepL APIはフリープランであれば無料で利用可能ですが、月50万文字までという制限がございますのでご了承ください。  
 [https://www.deepl.com/ja/docs-api/](https://www.deepl.com/ja/docs-api/){:target="_blank"}
 
-# インストール
+# ご利用方法
 
-## Windows
+## APIキーの設定
 
-
-
-## macOS / Linux
-
-macOSとLinuxでは、インストール時にコンパイルが必要です。 
+ご利用の前に、必ずDeepL APIキー（無料で取得可能）を取得して設定するようお願いいたします。
 
 ```bash
-$ git clone https://github.com/YotioSoft/dptran.git
-$ cd ./dptran
-$ make
-$ bash ./install.sh
+$ dptran -s key [取得したAPIキー]
 ```
 
-# APIキーの設定
-
-APIキーの取得後、dptranにキーを設定します。  
+## 通常モードで翻訳
 
 ```bash
-dptran -s key [取得したAPIキー]
+$ dptran Hello
+こんにちは
+$ dptran -t FR Hello
+Bonjour
 ```
 
+``-f``オプションで原文の言語を、``-t``オプションで翻訳先の言語を指定できます。翻訳先の言語の指定を省略した場合は日本語に翻訳されます。言語コードについてはヘルプをご覧ください。  
+
+```bash
+$ dptran -h
+```
+
+## 対話モードで翻訳
+
+```bash
+$ dptran
+> Hello
+
+こんにちは
+> Ich stehe jeden Tag um 7 Uhr auf.
+
+毎日7時に起きています。
+> Seriously, Hiro, you need to improve your English.
+
+マジでヒロさん、英語力アップしてください。
+> 今天玩儿得真开心！
+
+今日は素晴らしい時間を過ごせました
+> :q
+```
+
+複数の原文を対話形式で翻訳できます。``:q``で終了します。
+
+## パイプラインモードで翻訳
+
+例）manページの内容を日本語に翻訳  
+
+```bash
+$ man ls | col -b | dptran -p
+```
+
+``-p``オプションによりパイプラインモードに切り替わります。他のコマンドの実行結果を翻訳できます。
+
+## ヘルプを表示
+
+```bash
+$ dptran -h
+```
+
+## 翻訳可能な残り文字数を表示
+
+```bash
+$ dptran -r
+Character count:		16965
+Character limit (per month):	500000
+```
+
+DeepL APIで翻訳可能な残りの文字数が表示できます。DeepL APIのフリープランの場合、1ヶ月あたり50万文字まで翻訳可能です。
+
+## デフォルトの翻訳先言語の変更
+
+既定では日本語（JA)に設定されています。  
+``-s default_lang``で変更可能です。例えば、英語（EN）に変更するには以下のようにします。
+
+```bash
+$ dptrzn -s default_lang EN
+```
+
+## 設定のリセット
+
+全設定をリセットします。  
+注：APIキーも含めてリセットされます。再びご利用の場合は、もう一度APIキーを設定するようお願いいたします。  
+
+```bash
+$ dptran -s clear
+```
