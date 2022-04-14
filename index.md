@@ -1,5 +1,6 @@
 ## dptran: A translator command-line tool
 
+![dptran](./assets/img/dptran.png)  
 dptranは、コマンドライン上でDeepL翻訳を実行するCLIツールです。
 
 # 機能
