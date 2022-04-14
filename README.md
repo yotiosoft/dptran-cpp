@@ -1,5 +1,7 @@
 # dptran
 
+コマンドライン上でDeepL翻訳を実行するCLIツールです。
+
 ## インストール方法
 
 ### for Windows
@@ -10,7 +12,7 @@
 
 下記のライブラリが必要です。  
 
-- libcurl-dev (libcurl4-openssl-dev)
+- libcurl-dev
 
 ```bash
 $ git clone https://github.com/YotioSoft/dptran.git
@@ -92,6 +94,26 @@ Character limit (per month):	500000
 ```
 
 DeepL APIで翻訳可能な残りの文字数が表示できます。DeepL APIのフリープランの場合、1ヶ月あたり50万文字まで翻訳可能です。
+
+## デフォルトの翻訳先言語の変更
+
+既定では日本語（JA)に設定されています。  
+``-s default_lang``で変更可能です。例えば、英語（EN）に変更するには以下のようにします。
+
+```bash
+$ dptrzn -s default_lang EN
+```
+
+## 設定のリセット
+
+全設定をリセットします。  
+注：APIキーも含めてリセットされます。再びご利用の場合は、もう一度APIキーを設定するようお願いいたします。  
+
+```bash
+$ dptran -s clear
+```
+
+
 
 ## アンインストール方法
 
