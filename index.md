@@ -1,7 +1,9 @@
 ## dptran: A translator command-line tool
 
 ![dptran](./assets/img/dptran.png)  
-dptranは、コマンドライン上でDeepL翻訳を実行するCLIツールです。
+dptranは、コマンドライン上でDeepL翻訳を実行するCLIツールです。  
+
+[TOC]
 
 # 機能
 
@@ -75,6 +77,28 @@ SYNOPSIS ls [-@ABCFGHILOPRSTUWabcdefghiklmnopqrstuvwxy1%,] [--color=when][-D for
 ご利用になる場合は、DeepL APIにてAPIキーの取得が必要です。  
 DeepL APIはフリープランであれば無料で利用可能ですが、月50万文字までという制限がございますのでご了承ください。  
 [https://www.deepl.com/ja/docs-api/](https://www.deepl.com/ja/docs-api/){:target="_blank"}
+
+# インストール方法
+
+## Windows
+
+
+
+## macOS / Linux
+
+macOSとLinuxの場合は、導入時にビルドが必要です。  
+ビルドの際、下記のライブラリが必要となります。
+
+- libcurl-devel
+
+```
+$ git clone https://github.com/YotioSoft/dptran.git
+$ cd ./dptran
+$ make
+$ bash ./install.sh
+```
+
+上記のコマンドを実行後、端末を再起動することでdptranコマンドが利用可能になります。
 
 # ご利用方法
 
@@ -165,3 +189,15 @@ $ dptrzn -s default_lang EN
 ```bash
 $ dptran -s clear
 ```
+
+## アンインストール
+
+### Windows
+
+### macOS / Linux
+
+```
+$ bash ./uninstall.sh
+```
+
+上記のコマンドを実行後、端末を再起動することでアンインストール完了です。
