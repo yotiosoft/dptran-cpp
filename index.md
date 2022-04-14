@@ -3,7 +3,7 @@
 ![dptran](./assets/img/dptran.png)  
 dptranは、コマンドライン上でDeepL翻訳を実行するCLIツールです。  
 
-[TOC]
+
 
 # 機能
 
