@@ -167,3 +167,29 @@ int get_default_lang(string &default_lang) {
 
     return 0;
 }
+
+// 環境変数の取得
+string get_home_dir() {
+    string home_dir;
+    if (get_env_var("HOME", home_dir) != 0) {
+        return "";
+    }
+    return home_dir;
+}
+int get_env_var(string env_name, string& ret) {
+    size_t req_size;
+
+    getenv_s(&req_size, NULL, 0, env_name.c_str());
+    if (req_size == 0) {
+        return 1;
+    }
+
+    char* ret_c = (char*)malloc(req_size);
+    getenv_s(&req_size, ret_c, req_size, env_name.c_str());
+    ret = string(ret_c);
+    free(ret_c);
+
+    cout << ret << endl;
+
+    return 0;
+}
