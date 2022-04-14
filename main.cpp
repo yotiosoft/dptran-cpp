@@ -144,6 +144,7 @@ int help() {
     cout << "\t-f or -from\t"       << "原文の言語を指定（規定：自動検出）" << endl;
     cout << "\t-t or -to\t"         << "翻訳先の言語を指定（規定：日本語）" << endl;
     cout << "\t-p or -pipe\t"       << "パイプラインモードで実行" << endl;
+    cout << "\t-s or -setting\t"    << "設定" << endl;
     cout << "\t-h or -help\t"       << "ヘルプを表示" << endl;
     cout << "\t-v or -version\t"    << "バージョン情報を表示" << endl;
     cout << "\t-r or -remain\t"     << "DeepLへ送信可能な残りの文字数を表示" << endl;
@@ -177,6 +178,10 @@ int help() {
     cout << "\t" << "PT : " << "Portuguese (European)" << endl;
     cout << endl;
 
+    cout << "[設定項目]" << endl;
+    cout << "\t-s key\t"    << "DeepL APIキーの設定" << endl;
+    cout << endl;
+
     cout << "[Examples]" << endl;
     cout << "1) 通常モードで日本語の原文を英語（イギリス英語）に翻訳" << endl;
     cout << "\tdptran -f JA -t EN こんにちは" << endl;
@@ -197,6 +202,7 @@ int help() {
 int version() {
     cout << "dptran ver.1.0" << endl;
     cout << "(c) YotioSoft 2022" << endl;
+    cout << endl;
     cout << "This application uses DeepL API v2 for translations." << endl;
     cout << "Translations are provided by DeepL." << endl;
 
