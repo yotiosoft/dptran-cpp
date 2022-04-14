@@ -10,3 +10,5 @@
 #include <map>
 
 #include <curl/curl.h>
+
+using namespace std;

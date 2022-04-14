@@ -1,4 +1,3 @@
-#include "processes.h"
 #include "settings.h"
 
 using namespace std;
@@ -179,7 +178,9 @@ int help() {
     cout << endl;
 
     cout << "[設定項目]" << endl;
-    cout << "\t-s key\t"    << "DeepL APIキーの設定" << endl;
+    cout << "\t-s key\t\t"          << "DeepL APIキーの設定" << endl;
+    cout << "\t-s default_lang\t"   << "標準の翻訳先言語の変更（既定: JA）" << endl;
+    cout << "\t-s clear\t"          << "設定の初期化" << endl;
     cout << endl;
 
     cout << "[Examples]" << endl;
@@ -330,10 +331,6 @@ int parse(int argc, char *argv[]) {
                     cerr << "Error: 設定項目を指定してください" << endl;
                     return 1;
                 }
-                if (i+2 >= argc) {
-                    cerr << "Error: 設定内容を指定してください" << endl;
-                    return 1;
-                }
                 if (argv[i+1][0] == '-') {
                     cerr << "Error: 設定項目を指定してください" << endl;
                     return 1;
@@ -342,7 +339,18 @@ int parse(int argc, char *argv[]) {
                 i++;
                 string str_argv_next = string(argv[i]);
                 if (str_argv_next == "key") {
+                    if (i+1 >= argc) {
+                        cerr << "Error: 設定内容を指定してください" << endl;
+                        return 1;
+                    }
                     return setting(KEY, argc, argv, i);
+                }
+                else if (str_argv_next == "default_lang") {
+                    if (i+1 >= argc) {
+                        cerr << "Error: 設定内容を指定してください" << endl;
+                        return 1;
+                    }
+                    return setting(DEFAULT_LANG, argc, argv, i);
                 }
                 else if (str_argv_next == "clear") {
                     return setting(CLEAR, argc, argv, i);
@@ -381,9 +389,13 @@ int parse(int argc, char *argv[]) {
         }
     }
 
-    // 翻訳先言語が指定されていない場合、翻訳先言語を日本語に設定
+    // 翻訳先言語が指定されていない場合、翻訳先言語を取得
     if (!to_code_exists) {
-        lang_to = "JA";
+        string default_lang;
+        if (get_default_lang(default_lang) != 0) {
+            return 1;
+        }
+        lang_to = default_lang;
     }
 
      // -pオプションの場合はパイプモードへ

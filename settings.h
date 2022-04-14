@@ -1,5 +1,4 @@
-#include "header.h"
-#include "picojson/picojson.h"
+#include "processes.h"
 #include <fstream>
 
 using namespace std;
@@ -9,11 +8,13 @@ using namespace std;
 
 enum setting_type {
     CLEAR,
-    KEY
+    KEY,
+    DEFAULT_LANG
 };
 
 typedef struct {
     string key;
+    string default_lang;
 } settings_struct;
 
 // 設定切り替え
@@ -33,3 +34,9 @@ int set_key(int argc, char *argv[]);
 
 // キーの読み込み
 int get_key(string &api_key);
+
+// 標準の翻訳先言語の設定
+int set_default_lang(int argc, char *argv[]);
+
+// 標準の翻訳先言語の取得
+int get_default_lang(string &default_lang);
