@@ -192,8 +192,6 @@ int get_homedir(string& ret) {
     ret = string(ret_c);
     free(ret_c);
 
-    cout << ret << endl;
-
     return 0;
 }
 #else
@@ -209,11 +207,11 @@ int get_setting_filepath(string &ret) {
     string hmdir;
 
     if (get_homedir(hmdir) != 0) {
-        cerr << "Error: ホームディレクトリの取得に失敗しました" << endl;
+        cerr << "Error: ホームディレクトリの取得に失敗しました." << endl;
         return 1;
     }
 
-    ret = hmdir + "\dptran_bin\settings.json";
+    ret = hmdir + "/dptran_bin/settings.json";
 
     return 0;
 }
