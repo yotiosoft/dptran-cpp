@@ -1,4 +1,4 @@
-## dptran: A command-line tool that translate with DeepL
+## dptran: A translator command-line tool
 
 dptranは、コマンドライン上でDeepL翻訳を実行するCLIツールです。
 
@@ -69,6 +69,12 @@ SYNOPSIS ls [-@ABCFGHILOPRSTUWabcdefghiklmnopqrstuvwxy1%,] [--color=when][-D for
 （後略）
 ```
 
+# ご利用の際のご注意
+
+ご利用になる場合は、DeepL APIにてAPIキーの取得が必要です。  
+DeepL APIはフリープランであれば無料で利用可能ですが、月50万文字までという制限がございますのでご了承ください。  
+[https://www.deepl.com/ja/docs-api/](https://www.deepl.com/ja/docs-api/){:target="_blank"}
+
 # インストール
 
 ## Windows
@@ -88,10 +94,7 @@ $ bash ./install.sh
 
 # APIキーの設定
 
-ご利用の前に、DeepL APIのキーを取得してdptranに設定する必要があります。DeepL APIのAPIキーは下記のサイトから登録できます（無料で利用可能です）。  
-[https://www.deepl.com/ja/docs-api/](https://www.deepl.com/ja/docs-api/){:target="_blank"}  
-
-キーの登録後、dptranにキーを設定します。  
+APIキーの取得後、dptranにキーを設定します。  
 
 ```bash
 dptran -s key [取得したAPIキー]
