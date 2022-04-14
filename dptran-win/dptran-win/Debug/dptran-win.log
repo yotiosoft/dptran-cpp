@@ -1,0 +1,5 @@
+﻿  settings.cpp
+D:\git\dptran\settings.cpp(34,9): warning C4101: 'ret': ローカル変数は 1 度も使われていません。
+D:\git\dptran\settings.cpp(216,19): warning C4129: 'd': エスケープ シーケンスとして正しく認識されませんでした。
+D:\git\dptran\settings.cpp(216,19): warning C4129: 's': エスケープ シーケンスとして正しく認識されませんでした。
+  dptran-win.vcxproj -> D:\git\dptran\dptran-win\Debug\dptran-win.exe

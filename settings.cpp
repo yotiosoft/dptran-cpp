@@ -32,7 +32,11 @@ int settings_init() {
 int load_settings() {
     // 設定ファイルがない場合は新規作成
     int ret;
-    std::ifstream ifs(DPTRAN_DIR + SETTING_FILE);
+    string setting_filepath;
+    if (get_setting_filepath(setting_filepath) != 0) {
+        return 1;
+    }
+    std::ifstream ifs(setting_filepath);
     if (!ifs.is_open()) {
         ifs.close();
         return settings_init();
@@ -69,7 +73,11 @@ int save_settings() {
     obj.insert(make_pair("default_lang", picojson::value(settings_s.default_lang)));
 
     ofstream ofs;
-    ofs.open(DPTRAN_DIR + SETTING_FILE, ios::out);
+    string setting_filepath;
+    if (get_setting_filepath(setting_filepath) != 0) {
+        return 1;
+    }
+    ofs.open(setting_filepath, ios::out);
     if (ofs.fail()) {
         cerr << "Error: 設定ファイルを保存できません" << endl;
         return 1;
@@ -168,16 +176,11 @@ int get_default_lang(string &default_lang) {
     return 0;
 }
 
-// 環境変数の取得
-string get_home_dir() {
-    string home_dir;
-    if (get_env_var("HOME", home_dir) != 0) {
-        return "";
-    }
-    return home_dir;
-}
-int get_env_var(string env_name, string& ret) {
+// ホームディレクトリの取得
+#ifdef _WIN32
+int get_homedir(string& ret) {
     size_t req_size;
+    string env_name = "USERPROFILE";
 
     getenv_s(&req_size, NULL, 0, env_name.c_str());
     if (req_size == 0) {
@@ -190,6 +193,27 @@ int get_env_var(string env_name, string& ret) {
     free(ret_c);
 
     cout << ret << endl;
+
+    return 0;
+}
+#else
+int get_homedir(string& ret) {
+    ret = string(getenv("HOME"));
+
+    return 0;
+}
+#endif
+
+// 設定ファイルの場所の取得
+int get_setting_filepath(string &ret) {
+    string hmdir;
+
+    if (get_homedir(hmdir) != 0) {
+        cerr << "Error: ホームディレクトリの取得に失敗しました" << endl;
+        return 1;
+    }
+
+    ret = hmdir + "\dptran_bin\settings.json";
 
     return 0;
 }
