@@ -12,7 +12,7 @@
 
 下記のライブラリが必要です。  
 
-- libcurl-dev
+- libcurl-devel
 
 ```bash
 $ git clone https://github.com/YotioSoft/dptran.git
