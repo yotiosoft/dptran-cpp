@@ -101,7 +101,7 @@ DeepL APIで翻訳可能な残りの文字数が表示できます。DeepL API�
 ``-s default_lang``で変更可能です。例えば、英語（EN）に変更するには以下のようにします。
 
 ```bash
-$ dptrzn -s default_lang EN
+$ dptran -s default_lang EN
 ```
 
 ## 設定のリセット
