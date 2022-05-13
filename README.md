@@ -93,7 +93,8 @@ Character count:		16965
 Character limit (per month):	500000
 ```
 
-DeepL APIで翻訳可能な残りの文字数が表示できます。DeepL APIのフリープランの場合、1ヶ月あたり50万文字まで翻訳可能です。
+DeepL APIで翻訳可能な残りの文字数が表示できます。DeepL APIのフリープランの場合、1ヶ月あたり50万文字まで翻訳可能です。  
+※Apple Chip搭載機種のmacOSでは、Homebrewで導入したg++ではビルドできません（2022年5月現在）。OS標準のclangでビルドするようお願いいたします。
 
 ## デフォルトの翻訳先言語の変更
 
