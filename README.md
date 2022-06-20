@@ -22,7 +22,7 @@ $ bash ./install.sh
 ```
 
 After executing the above command, restart the terminal to make the dptran command available.  
-For Apple-Chip macOS, please use the clang (Xcode) compiler to build because it can't be built with g++ (as of June 2022).
+For Apple-Chip macOS, please use the clang (Xcode) compiler to build because it can't be built with g++.
 
 ## How to use?
 
@@ -105,7 +105,8 @@ DeepL API's free plan allows you to translate up to 500,000 characters per month
 ## Change default target language
 
 It is set to Japanese (JA) by default.  
-You can change it with ``-s default_lang``. For example, to change it to English (EN), do the following:
+You can change it with ``-s default_lang``.  
+For example, to change it to English (EN), do the following:
 
 ```bash
 $ dptran -s default_lang EN
