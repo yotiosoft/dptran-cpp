@@ -43,7 +43,10 @@ $ dptran -t FR Hello
 Bonjour
 ```
 
-You can specify the source language with the ``-f`` option and the target language with the ``-t`` option. If you omit the ``-destination language`` option, the translation will be done in Japanese. For more information about language codes, please see help:  
+You can specify the source language with the ``-f`` option and the target language with the ``-t`` option.  
+If you omit the ``-destination language`` option, the translation will be done in Japanese.  
+
+For more information about language codes, please see help:  
 
 ```bash
 $ dptran -h
