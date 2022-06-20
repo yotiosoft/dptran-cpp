@@ -1,16 +1,16 @@
 # dptran
 
-コマンドライン上でDeepL翻訳を実行するCLIツールです。
+A tool to run DeepL translations on command line.
 
-## インストール方法
+## How to install?
 
 ### for Windows
 
-準備中
+comming soon..
 
 ### for macOS & Linux
 
-下記のライブラリが必要です。  
+To run, you need the following library.  
 
 - libcurl-devel
 
@@ -21,20 +21,20 @@ $ make
 $ bash ./install.sh
 ```
 
-上記のコマンドを実行後、端末を再起動することでdptranコマンドが利用可能になります。  
-※Apple Chip搭載機種のmacOSでは、Homebrewで導入したg++ではビルドできません（2022年5月現在）。OS標準のclangでビルドするようお願いいたします。
+After executing the above command, restart the terminal to make the dptran command available.  
+For Apple-Chip macOS, please use the clang to build because It cannot be built with g++ (as of June 2022).
 
-## ご利用方法
+## How to use?
 
-### APIキーの設定
+### Setting API key
 
-ご利用の前に、必ずDeepL APIキー（無料で取得可能）を取得して設定するようお願いいたします。
+Please be sure to get your DeepL API key (It's free!) and set it up on dptran before using the service.
 
 ```bash
-$ dptran -s key [取得したAPIキー]
+$ dptran -s key [API key]
 ```
 
-### 通常モードで翻訳
+### Translate in normal mode
 
 ```bash
 $ dptran Hello
@@ -43,13 +43,13 @@ $ dptran -t FR Hello
 Bonjour
 ```
 
-``-f``オプションで原文の言語を、``-t``オプションで翻訳先の言語を指定できます。翻訳先の言語の指定を省略した場合は日本語に翻訳されます。言語コードについてはヘルプをご覧ください。  
+You can specify the source language with the ``-f`` option and the target language with the ``-t`` option. If you omit the ``-destination language`` option, the translation will be done in Japanese. For more information about language codes, please see help:  
 
 ```bash
 $ dptran -h
 ```
 
-### 対話モードで翻訳
+### Translate in interactive mode
 
 ```bash
 $ dptran
@@ -68,25 +68,27 @@ $ dptran
 > :q
 ```
 
-複数の原文を対話形式で翻訳できます。``:q``で終了します。
+Multiple source texts can be translated interactively.  
+Exit with ``:q``.
 
-### パイプラインモードで翻訳
+### Translate in pipeline mode
 
-例）manページの内容を日本語に翻訳  
+例）Translate man page content into Japanese  
 
 ```bash
 $ man ls | col -b | dptran -p
 ```
 
-``-p``オプションによりパイプラインモードに切り替わります。他のコマンドの実行結果を翻訳できます。
+Can be run in pipeline mode with the ``-p`` option.  
+You can translate the execution result of other commands.
 
-### ヘルプを表示
+### Show help
 
 ```bash
 $ dptran -h
 ```
 
-### 翻訳可能な残り文字数を表示
+### Displays the number of characters remaining to be translated
 
 ```bash
 $ dptran -r
@@ -94,21 +96,22 @@ Character count:		16965
 Character limit (per month):	500000
 ```
 
-DeepL APIで翻訳可能な残りの文字数が表示できます。DeepL APIのフリープランの場合、1ヶ月あたり50万文字まで翻訳可能です。
+You can view the number of remaining characters that can be translated by DeepL API.  
+DeepL API's free plan allows you to translate up to 500,000 characters per month.
 
-## デフォルトの翻訳先言語の変更
+## Change default target language
 
-既定では日本語（JA)に設定されています。  
-``-s default_lang``で変更可能です。例えば、英語（EN）に変更するには以下のようにします。
+It is set to Japanese (JA) by default.  
+You can change it with ``-s default_lang``. For example, to change it to English (EN), do the following:
 
 ```bash
 $ dptran -s default_lang EN
 ```
 
-## 設定のリセット
+## Reset settings
 
-全設定をリセットします。  
-注：APIキーも含めてリセットされます。再びご利用の場合は、もう一度APIキーを設定するようお願いいたします。  
+Resets all settings.  
+Note: The API key will be reset as well. If you wish to use the service again, please set the API key again.  
 
 ```bash
 $ dptran -s clear
@@ -116,11 +119,11 @@ $ dptran -s clear
 
 
 
-## アンインストール方法
+## How to uninstall?
 
 ### for Windows
 
-準備中
+comming soon..
 
 ### for macOS & Linux
 
@@ -128,4 +131,4 @@ $ dptran -s clear
 $ bash ./uninstall.sh
 ```
 
-上記のコマンドを実行後、端末を再起動することでアンインストール完了です。
+After executing the above command, reboot the terminal to complete uninstallation.
