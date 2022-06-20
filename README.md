@@ -22,7 +22,7 @@ $ bash ./install.sh
 ```
 
 After executing the above command, restart the terminal to make the dptran command available.  
-For Apple-Chip macOS, please use the clang to build because It cannot be built with g++ (as of June 2022).
+For Apple-Chip macOS, please use the clang (Xcode) compiler to build because it can't be built with g++ (as of June 2022).
 
 ## How to use?
 
@@ -113,8 +113,8 @@ $ dptran -s default_lang EN
 
 ## Reset settings
 
-Resets all settings.  
-Note: The API key will be reset as well. If you wish to use the service again, please set the API key again.  
+You can reset all settings.  
+Note: The API key will be reset as well. If you wish to use dptran again, please set the API key again.  
 
 ```bash
 $ dptran -s clear
