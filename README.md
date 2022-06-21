@@ -28,7 +28,7 @@ For Apple-Chip macOS, please use the clang (Xcode) compiler to build because it 
 
 ### Setting API key
 
-Please be sure to get your DeepL API key (It's free!) and set it up on dptran before using the service.
+Please be sure to get your DeepL API key (it's free) and set it up on dptran before using the service.
 
 ```bash
 $ dptran -s key [API key]
@@ -46,7 +46,7 @@ Bonjour
 You can specify the source language with the ``-f`` option and the target language with the ``-t`` option.  
 If you omit the ``-destination language`` option, the translation will be done in Japanese.  
 
-For more information about language codes, please see help:  
+For more information about language codes, see help:  
 
 ```bash
 $ dptran -h
