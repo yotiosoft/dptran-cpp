@@ -1,6 +1,9 @@
 # dptran
 
-A tool to run DeepL translations on command line.
+A tool to run DeepL translations on command line.  
+To use dptran, you need to obtain your DeepL API key.  
+
+**Note: This tool is still under development.**
 
 ## How to install?
 
@@ -10,9 +13,12 @@ comming soon..
 
 ### for macOS & Linux
 
-To run, you need the following library.  
+To run, you need the following library:  
 
 - libcurl-devel
+
+
+To install dptran, run the following:
 
 ```bash
 $ git clone https://github.com/YotioSoft/dptran.git
@@ -36,6 +42,9 @@ $ dptran -s key [API key]
 
 ### Translate in normal mode
 
+You can specify the source language with the ``-f`` option and the target language with the ``-t`` option.  
+If you omit the ``-destination language`` option, the translation will be done in Japanese. 
+
 ```bash
 $ dptran Hello
 こんにちは
@@ -43,8 +52,6 @@ $ dptran -t FR Hello
 Bonjour
 ```
 
-You can specify the source language with the ``-f`` option and the target language with the ``-t`` option.  
-If you omit the ``-destination language`` option, the translation will be done in Japanese.  
 
 For more information about language codes, please see help:  
 
@@ -53,6 +60,9 @@ $ dptran -h
 ```
 
 ### Translate in interactive mode
+
+Multiple source texts can be translated interactively.  
+Exit with ``:q``.
 
 ```bash
 $ dptran
@@ -71,12 +81,9 @@ $ dptran
 > :q
 ```
 
-Multiple source texts can be translated interactively.  
-Exit with ``:q``.
-
 ### Translate in pipeline mode
 
-例）Translate man page content into Japanese  
+Example: Translate man page content  
 
 ```bash
 $ man ls | col -b | dptran -p
@@ -93,20 +100,20 @@ $ dptran -h
 
 ### Displays the number of characters remaining to be translated
 
+You can view the number of remaining characters that can be translated by DeepL API.  
+DeepL API's free plan allows you to translate up to 500,000 characters per month.
+
 ```bash
 $ dptran -r
 Character count:		16965
 Character limit (per month):	500000
 ```
 
-You can view the number of remaining characters that can be translated by DeepL API.  
-DeepL API's free plan allows you to translate up to 500,000 characters per month.
-
 ## Change default target language
 
 It is set to Japanese (JA) by default.  
 You can change it with ``-s default_lang``.  
-For example, to change it to English (EN), do the following:
+For example, to change it to English (EN), run the following:
 
 ```bash
 $ dptran -s default_lang EN
